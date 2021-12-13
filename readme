@@ -1,0 +1,28 @@
+
+# generate .pkl file for training and testing
+# attachecd with semantic scores x, y, z, r, scores one-hot encoded format
+1. replace velodyne data of training and testing with the n*8 shape of *.bins -> pointcloud. Dirs needed to be modified: data/kitti/training/velodyne, data/kitti/testing/velodyne
+2. python -m pcdet.datasets.kitti.kitti_dataset create_kitti_infos tools/cfgs/dataset_configs/kitti_dataset.yaml 8
+
+# no attachecd semantic scores
+1. replace velodyne data of training and testing with the n*4 shape of *.bins -> pointcloud. Dirs needed to be modified: data/kitti/training/velodyne, data/kitti/testing/velodyne
+2. python -m pcdet.datasets.kitti.kitti_dataset create_kitti_infos tools/cfgs/dataset_configs/kitti_dataset.yaml 4
+
+# *.yaml file added items
+MODEL->BACKBONE_2D:
+FUSION_STYLE:
+OPTIONS: early, deep, late, fpn
+FUSION_VOXEL_SPLIT: SemanticVoxel is 6. it is 8 here.
+
+# *.yaml file modified items
+DATA_CONFIG:
+  DATA_AUGMENTOR:
+    AUG_CONFIG_LIST:
+      NUM_POINT_FEATURES: 5
+
+1. 制作数据集
+step 1: 替换data/kitti/training/velodyne. data/kitti/testing/velodyne 将带有点云的velodyne文件夹替换掉原来的,文件夹名字仍为velodyne,文件夹的名字不要更改
+step 2: cd ${pcdet project root directory }
+step 3: python -m pcdet.datasets.kitti.kitti_dataset create_kitti_infos tools/cfgs/dataset_configs/kitti_dataset.yaml 5 # 最后面那个数字代表你的点云是几维的,8维就是8 四维就是4 5维就是5
+        如果要用对应维度的数据训练, *.yaml文件也应该做相应的修改->line 17 - line 21
+step 4: 认真核对train_fusion.sh train_log.sh 等 对应的配置文件及训练好的pth,所有的程序均已核对过,不会出问题  只要对应的配置文件和对应的pth放一块
